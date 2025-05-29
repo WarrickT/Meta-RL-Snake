@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from utils.constants import DIRECTIONS, LEFT_TURN, RIGHT_TURN
 
 
 class SnakeEnv:
@@ -123,3 +124,44 @@ class SnakeEnv:
         plt.axis("off")
         plt.pause(0.1)
         plt.clf()  # Clearing the frame
+
+
+def get_state(snake, apple, direction, grid_size):
+    # Define relative directions 
+    # These numbers could be very problematic once we work with reward systems
+   
+    # There are three possible positions after this
+    head_y, head_x = snake[0]
+    forward = (head_y + direction[0], head_x + direction[1])
+    left = (head_y + LEFT_TURN[direction][0], head_x + LEFT_TURN[direction][1])
+    right = (head_y + RIGHT_TURN[direction][0], head_x + RIGHT_TURN[direction][1])
+
+    danger_front = int(is_danger(forward, snake, grid_size))
+    danger_left = int(is_danger(left, snake, grid_size))
+    danger_right = int(is_danger(right, snake, grid_size))
+
+    direction_index = DIRECTIONS[direction]
+
+    apple_up_down = (
+        1 if apple[0] > head_y else
+        -1 if apple[0] < head_y else 
+        0
+    )
+    apple_left_right = (
+        1 if apple[1] > head_x else
+        -1 if apple[1] < head_x else 
+        0
+    )
+
+    return (danger_front, danger_left, danger_right, direction_index, apple_up_down, apple_left_right)
+
+
+def is_danger(pos, snake, grid_size):
+    y, x = pos
+    return ((pos in snake) or (y < 0 or y >= grid_size) or (x < 0 or x >= grid_size))
+
+    
+
+
+
+    
