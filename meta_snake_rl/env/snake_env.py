@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from utils.constants import DIRECTIONS, LEFT_TURN, RIGHT_TURN
+from meta_snake_rl.utils.constants import DIRECTIONS, LEFT_TURN, RIGHT_TURN, ACTIONS, OPPOSITE
 
 
 class SnakeEnv:
@@ -72,8 +72,6 @@ class SnakeEnv:
         if self.variant == "moving_apple" and self.step_count % 5 == 0:
             self.grid[self.apple[0]][self.apple[1]] = 0
             self.place_apple()
-
-        ACTIONS = {0: (-1, 0), 1: (1, 0), 2: (0, -1), 3: (0, 1)}
 
         new_direction = ACTIONS[action]
         current_direction = self.direction
@@ -161,6 +159,25 @@ def is_danger(pos, snake, grid_size):
     return ((pos in snake) or (y < 0 or y >= grid_size) or (x < 0 or x >= grid_size))
 
     
+def select_action(Q, state, epsilon, direction):
+    if state not in Q:
+        Q[state] = {a: 0 for a in ACTIONS}
+
+    illegal_action = OPPOSITE[direction]
+    valid_actions = [a for a in ACTIONS if a != illegal_action]
+
+    # Initialize epsilon greedy decision
+    r = random.random()
+
+    if r < epsilon: 
+        action = random.choice(valid_actions)
+    else:
+        max_Q_val = max(Q[state][a] for a in valid_actions)
+        best_actions = [a for a in valid_actions if Q[state][a] == max_Q_val]
+        action = random.choice(best_actions)
+
+    return action
+
 
 
 
