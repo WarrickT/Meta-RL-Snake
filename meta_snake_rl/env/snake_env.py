@@ -3,8 +3,17 @@ import random
 import matplotlib.pyplot as plt
 from meta_snake_rl.utils.constants import DIRECTIONS, LEFT_TURN, RIGHT_TURN, ACTIONS, OPPOSITE
 
+# Different environments to train the RL Agent for 
+variants = ["classic", "moving_apple", "obstacles"]
 
 class SnakeEnv:
+    def make_env(variant):
+        return SnakeEnv(grid_size=15, variant=variant)
+    
+    # Wrapper 
+    def sample_task():
+        variant = random.choice(variants)
+        return SnakeEnv(grid_size=15, variant=variant)
 
     def __init__(self, grid_size=10, variant="classic"):
         self.grid_size = grid_size
@@ -123,8 +132,13 @@ class SnakeEnv:
         plt.pause(0.1)
         plt.clf()  # Clearing the frame
 
+variant_codes = {
+    "classic": (1, 0, 0),
+    "moving_apple": (0, 1, 0),
+    "obstacles": (0, 0, 1)
+}
 
-def get_state(snake, apple, direction, grid_size):
+def get_state(snake, apple, direction, grid_size, variant):
     # Define relative directions 
     # These numbers could be very problematic once we work with reward systems
    
@@ -151,7 +165,9 @@ def get_state(snake, apple, direction, grid_size):
         0
     )
 
-    return (danger_front, danger_left, danger_right, direction_index, apple_up_down, apple_left_right)
+    variant_encoding = variant_codes[variant]
+
+    return (danger_front, danger_left, danger_right, direction_index, apple_up_down, apple_left_right, *variant_encoding)
 
 
 def is_danger(pos, snake, grid_size):
